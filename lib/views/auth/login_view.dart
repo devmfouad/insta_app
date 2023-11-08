@@ -2,6 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:insta_app/shared/theme/app_colors.dart';
 import 'package:insta_app/shared/widget/custom_text_form_field_widget.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
+
+import '../home/home_view.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+
+
+GoogleSignIn _googleSignIn = GoogleSignIn(
+  scopes: [
+    'email',
+    'https://www.googleapis.com/auth/contacts.readonly',
+  ],
+);
 
 class LoginView extends StatelessWidget {
   const LoginView({super.key});
@@ -59,7 +71,23 @@ class LoginView extends StatelessWidget {
               ],
             ),
 
-            TextButton(onPressed: (){}, child: Row(
+            TextButton(onPressed: ()async{
+              final LoginResult result = await FacebookAuth.instance.login(); // by default we request the email and the public profile
+              print(result.status.name);
+              Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => HomeView()));
+
+// or FacebookAuth.i.login()
+              if (result.status == LoginStatus.success) {
+                // you are logged
+                final AccessToken accessToken = result.accessToken!;
+                //Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => HomeView()));
+              } else {
+                print(result.status);
+                print(result.message);
+              }
+
+            },
+              child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
@@ -68,7 +96,32 @@ class LoginView extends StatelessWidget {
                 Text("contine as belal")
               ],
             ),),
+            SizedBox(
+              height: 20,
+            ),
 
+            TextButton(onPressed: ()async{
+              try {
+             GoogleSignInAccount? result =   await _googleSignIn.signIn();
+             Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => HomeView()));
+
+             if(result != null) {
+               print(result.id);
+             }
+              } catch (error) {
+                print(error);
+              }
+
+            },
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Icon(Icons.facebook_outlined),
+                  SizedBox(width: 4.w,),
+                  Text("google login")
+                ],
+              ),),
           ],
         ),
       ),

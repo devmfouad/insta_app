@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -5,7 +6,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:insta_app/shared/theme/app_colors.dart';
 import 'package:insta_app/shared/widget/custom_text_form_field_widget.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../home/home_view.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -17,29 +17,38 @@ GoogleSignIn _googleSignIn = GoogleSignIn(
   ],
 );
 
-class LoginView extends StatefulWidget {
-  const LoginView({super.key});
+class RegisterView extends StatefulWidget {
+  const RegisterView({super.key});
 
   @override
-  State<LoginView> createState() => _LoginViewState();
+  State<RegisterView> createState() => _RegisterViewState();
 }
 
-class _LoginViewState extends State<LoginView> {
+class _RegisterViewState extends State<RegisterView> {
   final emailCtrl = TextEditingController();
   final pwdCtrl = TextEditingController();
+  final firstName = TextEditingController();
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(12.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
+        child: ListView(
+          //mainAxisAlignment: MainAxisAlignment.center,
+          //crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
-              "Instagram",
+              "Instagram Register",
               style: TextStyle(fontFamily: 'myFont-normal', fontSize: 30),
+            ),
+            SizedBox(
+              height: 20,
+            ),
+            CustomTextFormFieldWidget(
+              hintText: "first name",
+              controller: firstName,
             ),
             SizedBox(
               height: 20,
@@ -70,16 +79,19 @@ class _LoginViewState extends State<LoginView> {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () async{
-var result = await FirebaseAuth.instance.signInWithEmailAndPassword(email: emailCtrl.text, password: pwdCtrl.text);
-if(result.user != null) {
-  // Obtain shared preferences.
-  final SharedPreferences prefs = await SharedPreferences.getInstance();
-  prefs.setBool("isLoggedIn", true);
-  prefs.setString("id", result.user!.uid);
+                  UserCredential result = await FirebaseAuth.instance.createUserWithEmailAndPassword(email: emailCtrl.text, password: pwdCtrl.text);
+                  var id = result.user!.uid;
+                  var user = {
+                    'id' : id,
+                    'firstName' : firstName.text,
+                    'email' : emailCtrl.text,
+                    'password' : pwdCtrl.text,
+                  };
 
-  Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => HomeView()));
+                  await FirebaseFirestore.instance.collection("users").doc(id).set(user,SetOptions(merge: true));
 
-}
+                  Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => HomeView()));
+
 
                 },
                 child: Text("Log In"),
@@ -92,9 +104,9 @@ if(result.user != null) {
               children: [
                 Expanded(
                     child: Container(
-                  height: 1.5.h,
-                  color: Colors.grey[200],
-                )),
+                      height: 1.5.h,
+                      color: Colors.grey[200],
+                    )),
                 SizedBox(
                   width: 20.w,
                 ),
@@ -107,9 +119,9 @@ if(result.user != null) {
                 ),
                 Expanded(
                     child: Container(
-                  height: 1.5,
-                  color: Colors.grey[200],
-                )),
+                      height: 1.5,
+                      color: Colors.grey[200],
+                    )),
               ],
             ),
             TextButton(

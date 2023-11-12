@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:insta_app/views/auth/login_view.dart';
+import 'package:insta_app/views/auth/register_view.dart';
 
 
 

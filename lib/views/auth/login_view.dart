@@ -2,9 +2,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:insta_app/global.dart';
 import 'package:insta_app/shared/theme/app_colors.dart';
 import 'package:insta_app/shared/widget/custom_text_form_field_widget.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
+import 'package:insta_app/views/main_Screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../home/home_view.dart';
@@ -73,11 +75,12 @@ class _LoginViewState extends State<LoginView> {
 var result = await FirebaseAuth.instance.signInWithEmailAndPassword(email: emailCtrl.text, password: pwdCtrl.text);
 if(result.user != null) {
   // Obtain shared preferences.
-  final SharedPreferences prefs = await SharedPreferences.getInstance();
-  prefs.setBool("isLoggedIn", true);
-  prefs.setString("id", result.user!.uid);
+  prefs!.setBool("isLoggedIn", true);
+  prefs!.setString("id", result.user!.uid);
+  userId = result.user!.uid;
 
-  Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => HomeView()));
+
+  Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => mainScreen()));
 
 }
 

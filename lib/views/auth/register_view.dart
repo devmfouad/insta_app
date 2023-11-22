@@ -7,6 +7,7 @@ import 'package:insta_app/shared/theme/app_colors.dart';
 import 'package:insta_app/shared/widget/custom_text_form_field_widget.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 
+import '../../global.dart';
 import '../home/home_view.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
@@ -88,7 +89,7 @@ class _RegisterViewState extends State<RegisterView> {
                     'password' : pwdCtrl.text,
                   };
 
-                  await FirebaseFirestore.instance.collection("users").doc(id).set(user,SetOptions(merge: true));
+                  await firebaseFirestore.collection(usersCollection).doc(id).set(user,SetOptions(merge: true));
 
                   Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => HomeView()));
 

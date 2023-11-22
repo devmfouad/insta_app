@@ -7,17 +7,21 @@ class CustomTextFormFieldWidget extends StatelessWidget {
   final String hintText;
   final TextEditingController controller;
   final bool isPassword;
+  final bool expanded;
   final Widget? suffixIcon;
-  const CustomTextFormFieldWidget({super.key,required this.hintText , required this.controller, this.isPassword = false,this.suffixIcon});
+  final int? maxLines;
+  final TextInputType? keyboardType;
+  const CustomTextFormFieldWidget({super.key,required this.hintText , required this.controller, this.isPassword = false,this.suffixIcon,this.maxLines = 1,this.keyboardType = TextInputType.text,this.expanded = false,});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10),
-      decoration: const BoxDecoration(
+      decoration:  BoxDecoration(
           color: AppColors.grey
       ),
       child: TextFormField(
+        maxLines: maxLines,
         controller: controller,
         decoration: InputDecoration(
             hintText: hintText,
@@ -25,6 +29,8 @@ class CustomTextFormFieldWidget extends StatelessWidget {
           border: InputBorder.none
         ),
         obscureText: isPassword,
+        keyboardType: keyboardType,
+        expands: expanded,
       ),
     );
   }

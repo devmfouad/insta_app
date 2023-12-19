@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:insta_app/models/post_model.dart';
 
 import 'custom_text_widget.dart';
 
-class PostModel extends StatelessWidget {
-  const PostModel({super.key});
+class PostWidget extends StatelessWidget {
+  final PostModel model;
+  const PostWidget({super.key,required this.model});
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +32,7 @@ class PostModel extends StatelessWidget {
             margin: EdgeInsets.only(top: 7,bottom: 7),
             height: 240,
             width: double.infinity,
-            color: Colors.blueGrey[800],
+            child: Image.network(model.imageUrl!),
           ),
           //Image(image: AssetImage("assets/images/Cap0.jpg")),
           Row(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:insta_app/global.dart';
 import 'package:insta_app/shared/widget/post_widget.dart';
 
+import '../../../models/post_model.dart';
 import '../../../shared/widget/custom_text_widget.dart';
 import '../../main_Screen.dart';
 
@@ -24,11 +25,28 @@ class _homeTapState extends State<homeTap> {
   List<PostModel> posts = [];
 
   getPosts()async {
-  var result = await  firebaseFirestore.collection(postsCollection).get();
-  if(result.docs.isNotEmpty) {
-    for (var doc in result.docs) {
+    print("getPosts");
+    posts = [];
+    setState(() {
 
-    }}
+    });
+    var result = await  firebaseFirestore.collection(postsCollection).get();
+    print(result.docs.length);
+
+    if(result.docs.isNotEmpty) {
+      for (var doc in result.docs) {
+        var data = doc.data();
+        posts.add(PostModel(
+          userId: data["userId"],
+          body: data["body"],
+          imageUrl: data["imageUrl"],
+        ));
+
+      }}
+    setState(() {
+
+    });
+
 
   }
 
@@ -36,59 +54,73 @@ class _homeTapState extends State<homeTap> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body:ListView(
-        children: [
-          Container(
-            margin: EdgeInsets.only(top: 7, left: 10),
-            child: Text(
-              "Stories",
-              style: TextStyle(
-                fontSize: 30,
-                fontWeight: FontWeight.w600,
-                color: Colors.black87,
+      body: RefreshIndicator(
+        onRefresh: () async{
+          getPosts();
+        },
+        child: ListView(
+          physics: BouncingScrollPhysics(),
+          children: [
+            Container(
+              margin: EdgeInsets.only(top: 7, left: 10),
+              child: Text(
+                "Stories",
+                style: TextStyle(
+                  fontSize: 30,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                ),
               ),
             ),
-          ),
-          SizedBox(
-            height: 4,
-          ),
-          Container(
-            height: 89,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              children: [
-                AppStory(storyUrl: "assets/images/Cap0.jpg"),
-                AppStory(storyUrl: "assets/images/Cap1.PNG"),
-                AppStory(storyUrl: "assets/images/Cap2.PNG"),
-                AppStory(storyUrl: "assets/images/Cap3.JPEG"),
-                AppStory(storyUrl: "assets/images/Cap0.jpg"),
-                AppStory(storyUrl: "assets/images/Cap1.PNG"),
-                AppStory(storyUrl: "assets/images/Cap2.PNG"),
-                AppStory(storyUrl: "assets/images/Cap3.JPEG"),
-                AppStory(storyUrl: "assets/images/Cap0.jpg"),
-                AppStory(storyUrl: "assets/images/Cap1.PNG"),
-                AppStory(storyUrl: "assets/images/Cap2.PNG"),
-                AppStory(storyUrl: "assets/images/Cap3.JPEG"),
-              ],
+            SizedBox(
+              height: 4,
             ),
-          ),
-          ListWidget()
-        ],
+            //stories
+            Container(
+              height: 89,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                children: [
+                  AppStory(storyUrl: "assets/images/Cap0.jpg"),
+                  AppStory(storyUrl: "assets/images/Cap1.PNG"),
+                  AppStory(storyUrl: "assets/images/Cap2.PNG"),
+                  AppStory(storyUrl: "assets/images/Cap3.JPEG"),
+                  AppStory(storyUrl: "assets/images/Cap0.jpg"),
+                  AppStory(storyUrl: "assets/images/Cap1.PNG"),
+                  AppStory(storyUrl: "assets/images/Cap2.PNG"),
+                  AppStory(storyUrl: "assets/images/Cap3.JPEG"),
+                  AppStory(storyUrl: "assets/images/Cap0.jpg"),
+                  AppStory(storyUrl: "assets/images/Cap1.PNG"),
+                  AppStory(storyUrl: "assets/images/Cap2.PNG"),
+                  AppStory(storyUrl: "assets/images/Cap3.JPEG"),
+                ],
+              ),
+            ),
+            //posts
+            posts.isEmpty ? Center(child: CircularProgressIndicator()) :
+            ListWidget(posts: posts,)
+          ],
+        ),
       ) ,
     );
   }
 }
+
+
 class ListWidget extends StatelessWidget {
+  final List<PostModel> posts;
+  ListWidget({required this.posts});
+
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: MediaQuery.of(context).size.height,
-      child: ListView.builder(
-        itemCount: 20,
-        itemBuilder: (context, index) {
-          return PostModel();
-        },
-      ),
+    return ListView.builder(
+      physics: NeverScrollableScrollPhysics(),
+      shrinkWrap: true,
+      itemCount: posts.length,
+      itemBuilder: (context, index) {
+        return PostWidget(model: posts[index],);
+      },
     );
   }
 }

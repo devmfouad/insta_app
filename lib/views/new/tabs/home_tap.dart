@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:insta_app/global.dart';
+import 'package:insta_app/helpers/posts_helper.dart';
 import 'package:insta_app/shared/widget/post_widget.dart';
 
 import '../../../models/post_model.dart';
@@ -25,28 +26,10 @@ class _homeTapState extends State<homeTap> {
   List<PostModel> posts = [];
 
   getPosts()async {
-    print("getPosts");
-    posts = [];
+    posts = await PostsHelper.getPosts(userId: userId!);
     setState(() {
 
     });
-    var result = await  firebaseFirestore.collection(postsCollection).get();
-    print(result.docs.length);
-
-    if(result.docs.isNotEmpty) {
-      for (var doc in result.docs) {
-        var data = doc.data();
-        posts.add(PostModel(
-          userId: data["userId"],
-          body: data["body"],
-          imageUrl: data["imageUrl"],
-        ));
-
-      }}
-    setState(() {
-
-    });
-
 
   }
 

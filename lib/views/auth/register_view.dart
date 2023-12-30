@@ -90,6 +90,9 @@ class _RegisterViewState extends State<RegisterView> {
                   };
 
                   await firebaseFirestore.collection(usersCollection).doc(id).set(user,SetOptions(merge: true));
+                  await result.user!.sendEmailVerification();
+
+
 
                   Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => HomeView()));
 

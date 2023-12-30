@@ -6,18 +6,16 @@ import 'package:insta_app/global.dart';
 import 'package:insta_app/shared/theme/app_colors.dart';
 import 'package:insta_app/shared/widget/custom_text_form_field_widget.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
+import 'package:insta_app/views/auth/register_view.dart';
 import 'package:insta_app/views/main_Screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_social_button/flutter_social_button.dart';
 
 import '../home/home_view.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
-GoogleSignIn _googleSignIn = GoogleSignIn(
-  scopes: [
-    'email',
-    'https://www.googleapis.com/auth/contacts.readonly',
-  ],
-);
+final FirebaseAuth _auth = FirebaseAuth.instance;
+final GoogleSignIn googleSignIn = GoogleSignIn();
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -70,22 +68,41 @@ class _LoginViewState extends State<LoginView> {
             ),
             SizedBox(
               width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () async{
-var result = await FirebaseAuth.instance.signInWithEmailAndPassword(email: emailCtrl.text, password: pwdCtrl.text);
-if(result.user != null) {
-  // Obtain shared preferences.
-  prefs!.setBool("isLoggedIn", true);
-  prefs!.setString("id", result.user!.uid);
-  userId = result.user!.uid;
+              child: Column(
+                children: [
+                  ElevatedButton(
+                    onPressed: () async {
+                      var result = await FirebaseAuth.instance
+                          .signInWithEmailAndPassword(
+                              email: emailCtrl.text, password: pwdCtrl.text);
+                      if (result.user != null) {
+                        if(result.user!.emailVerified == false) {
+                          await result.user!.sendEmailVerification();
+                          return;
+                        }
+                        print("result.user!.emailVerified ${result.user!.emailVerified}");
+                        // Obtain shared preferences.
+                        prefs!.setBool("isLoggedIn", true);
+                        prefs!.setString("id", result.user!.uid);
+                        userId = result.user!.uid;
+
+                        Navigator.of(context).pushReplacement(
+                            MaterialPageRoute(builder: (context) => mainScreen()));
+                      }
+                    },
+                    child: Text("Log In"),
+                  ),
+                  ElevatedButton(
+                    onPressed: () async {
 
 
-  Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => mainScreen()));
+                        Navigator.of(context).pushReplacement(
+                            MaterialPageRoute(builder: (context) => RegisterView()));
 
-}
-
-                },
-                child: Text("Log In"),
+                    },
+                    child: Text("Register"),
+                  ),
+                ],
               ),
             ),
             SizedBox(
@@ -148,18 +165,34 @@ if(result.user != null) {
             SizedBox(
               height: 20,
             ),
+            /*
             TextButton(
               onPressed: () async {
-                try {
-                  GoogleSignInAccount? result = await _googleSignIn.signIn();
+                final GoogleSignInAccount? googleSignInAccount = await googleSignIn.signIn();
 
-                  if (result != null) {
-                    print(result.id);
-                    // Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => HomeView()));
-                  }
-                } catch (error) {
-                  print(error);
+                final GoogleSignInAuthentication googleSignInAuthentication =
+                await googleSignInAccount!.authentication;
+
+
+                final AuthCredential credential = GoogleAuthProvider.credential(
+                  accessToken: googleSignInAuthentication.accessToken,
+                  idToken: googleSignInAuthentication.idToken,
+                );
+
+                final UserCredential authResult = await _auth.signInWithCredential(credential);
+                final User? user = authResult.user;
+
+                if (user != null) {
+                  // Obtain shared preferences.
+                  prefs!.setBool("isLoggedIn", true);
+                  prefs!.setString("id", user.uid);
+                  userId = user.uid;
+
+                  Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(builder: (context) => mainScreen()));
                 }
+
+
               },
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -173,6 +206,75 @@ if(result.user != null) {
                 ],
               ),
             ),
+            */
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                FlutterSocialButton(
+                  onTap: () async {
+                    final GoogleSignInAccount? googleSignInAccount = await googleSignIn.signIn();
+
+                    final GoogleSignInAuthentication googleSignInAuthentication =
+                    await googleSignInAccount!.authentication;
+
+
+                    final AuthCredential credential = GoogleAuthProvider.credential(
+                      accessToken: googleSignInAuthentication.accessToken,
+                      idToken: googleSignInAuthentication.idToken,
+                    );
+
+                    final UserCredential authResult = await _auth.signInWithCredential(credential);
+                    final User? user = authResult.user;
+
+                    if (user != null) {
+                      // Obtain shared preferences.
+                      prefs!.setBool("isLoggedIn", true);
+                      prefs!.setString("id", user.uid);
+                      userId = user.uid;
+
+                      Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(builder: (context) => mainScreen()));
+                    }
+
+
+                  },
+                  buttonType: ButtonType.google,
+                  mini: true,// Button type for different type buttons
+                  //iconColor: Colors.black,
+                ),
+                SizedBox(width: 10,),
+                FlutterSocialButton(
+                  onTap: () async {
+
+                    // Trigger the sign-in flow
+                    final LoginResult loginResult = await FacebookAuth.instance.login();
+
+                    // Create a credential from the access token
+                    final OAuthCredential facebookAuthCredential = FacebookAuthProvider.credential(loginResult.accessToken!.token);
+
+                    // Once signed in, return the UserCredential
+                    final UserCredential authResult = await _auth.signInWithCredential(facebookAuthCredential);
+                    final User? user = authResult.user;
+
+                    if (user != null) {
+                      // Obtain shared preferences.
+                      prefs!.setBool("isLoggedIn", true);
+                      prefs!.setString("id", user.uid);
+                      userId = user.uid;
+
+                      Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(builder: (context) => mainScreen()));
+                    }
+
+                  },
+                  buttonType: ButtonType.facebook, // Button type for different type buttons
+                  //iconColor: Colors.black,
+                  mini: true,
+                ),
+              ],
+            ),
+
           ],
         ),
       ),

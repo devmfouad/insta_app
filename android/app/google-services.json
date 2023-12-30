@@ -12,7 +12,20 @@
           "package_name": "com.instaapp.insta_app"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "564202804176-q9tag399a54shi2hbm9bqsua18ac05ib.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.instaapp.insta_app",
+            "certificate_hash": "11db0bb34b6ce794666421fb199df4f3710a3fbd"
+          }
+        },
+        {
+          "client_id": "564202804176-tjrhqqas651721qe8lt9122vbbf4hj2d.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCFbUjUi5gPrfjGROf6maG1Oci_UroDX-E"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "564202804176-tjrhqqas651721qe8lt9122vbbf4hj2d.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:insta_app/shared/theme/app_colors.dart';
+import 'package:insta_app/views/new/profile_taps/image_preview_screen.dart';
 
+import '../../../global.dart';
+import '../../../helpers/posts_helper.dart';
+import '../../../models/post_model.dart';
 import '../../../shared/widget/custom_text_widget.dart';
 import '../profile_taps/my_photos.dart';
 import '../profile_taps/status.dart';
@@ -17,6 +22,36 @@ class _profileTapState extends State<profileTap> {
     myStatus(),
     myPhotos(),
   ];
+
+
+  String displayType = 'grid';
+  onChangeDisplayType(String type){
+    displayType = type;
+    setState(() {
+
+    });
+  }
+
+
+  @override
+  void initState() {
+    super.initState();
+    getPosts();
+  }
+
+  List<PostModel> posts = [];
+
+  getPosts()async {
+    posts = await PostsHelper.getPosts(userId: userId!);
+    setState(() {
+
+    });
+
+  }
+
+
+
+
   @override
   Widget build(BuildContext context) {
     return ListView(
@@ -113,53 +148,86 @@ class _profileTapState extends State<profileTap> {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             IconButton(
-              onPressed: () {},
+              onPressed: () {
+                onChangeDisplayType("grid");
+              },
               icon: Icon(
                 Icons.border_all_outlined,
                 size: 38,
+                color: displayType == 'grid' ? AppColors.primartColor : Colors.black,
               ),
             ),
             IconButton(
-              onPressed: () {},
+              onPressed: () {
+                onChangeDisplayType("list");
+              },
               icon: Icon(
-                Icons.person_pin_outlined,
+                Icons.list,
                 size: 38,
+                color: displayType == 'list' ? AppColors.primartColor : Colors.black,
               ),
             )
           ],
         ),
-        Wrap(
-            crossAxisAlignment: WrapCrossAlignment.start,
-            alignment: WrapAlignment.spaceEvenly,
-            children: [
-              buildProfilePhotos(context),
-              buildProfilePhotos(context),
-              buildProfilePhotos(context),
-              buildProfilePhotos(context),
-              buildProfilePhotos(context),
-              buildProfilePhotos(context),
-              buildProfilePhotos(context),
-              buildProfilePhotos(context),
-              buildProfilePhotos(context),
-              buildProfilePhotos(context),
-              buildProfilePhotos(context),
-              buildProfilePhotos(context),
-              buildProfilePhotos(context),
-              buildProfilePhotos(context),
-              buildProfilePhotos(context),
-              buildProfilePhotos(context),
-              buildProfilePhotos(context),
-              buildProfilePhotos(context),
-            ])
+        displayType == "grid" ? buildGrid() : buildList(),
       ],
+    );
+  }
+
+
+  Widget buildGrid() {
+    return GridView.builder(
+      physics: NeverScrollableScrollPhysics(),
+      shrinkWrap: true,
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 4,
+        crossAxisSpacing: 4.0,
+        mainAxisSpacing: 4.0,
+      ),
+      itemCount: posts.length,
+      itemBuilder: (context, index) {
+        return buildProfilePhotos(context,posts[index]);
+      },
+    );
+  }
+  Widget buildList() {
+    return ListView.builder(
+      physics: BouncingScrollPhysics(),
+      shrinkWrap: true,
+      itemCount: posts.length,
+      itemBuilder: (context , index) {
+        PostModel model = posts[index];
+
+        return Container(
+          margin: EdgeInsets.symmetric(vertical: 12),
+          child: ListTile(
+            leading: InkWell(
+                onTap: (){
+                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => ImagePreviewScreen(url: model.imageUrl!)));
+                },
+                onLongPress: (){
+                  showDialog(context: context, builder: (context) {
+                    return Container(
+                      width: 100,
+                      height: 100,
+                      color: Colors.red,
+                    );
+                  });
+                },
+                child: Image.network(model.imageUrl!,width: 60,height: 60,)),
+            title: Text(model.body!),
+          ),
+        );
+      },
     );
   }
 }
 
-Widget buildProfilePhotos(BuildContext context) {
+Widget buildProfilePhotos(BuildContext context , PostModel model) {
   return Container(
       margin: EdgeInsets.all(3),
       height: 100,
       width: MediaQuery.of(context).size.width / 3.18,
-      color: Colors.blueGrey[700]);
+      child: Image.network(model.imageUrl!),
+  );
 }
